@@ -1,0 +1,122 @@
+import random
+import re
+
+class ChefBot:
+    # Responses
+    negative_res = ("no", "nope", "nah", "naw", "not a chance", "sorry")
+    exit_commands = ("quit", "pause", "exit", "goodbye", "bye", "later")
+
+    random_questions = (
+        "What's your favorite dish?",
+        "Do you enjoy cooking?",
+        "What's the best meal you've ever had?",
+        "Do you have any dietary restrictions?",
+        "What's a food you can't live without?",
+        "Do you prefer sweet or savory dishes?",
+        "Have you tried any new recipes lately?",
+        "This classifies as a type of casual talk about food."
+    )
+
+    def __init__(self):
+        self.food_talk = {
+            'favorite_dish_intent': r'.*\s*fav(orite)?\s*dish.*',
+            'enjoy_cooking_intent': r'.*\s*enjoy\s*cooking.*',
+            'best_meal_intent': r'.*\s*best\s*meal.*',
+            'dietary_restrictions_intent': r'.*\s*dietary\s*restrictions.*',
+            'food_love_intent': r'.*\s*food\s*you\s*can\'t\s*live\s*without.*',
+            'sweet_or_savory_intent': r'.*\s*sweet\s*or\s*savory.*',
+            'new_recipe_intent': r'.*\s*new\s*recipes?.*',
+        }
+
+    def greet(self):
+        self.name = input("What is your name?\n")
+        will_help = input(f"Hi {self.name}, I'm ChefBot. Can we talk about food?\n")
+        if will_help.lower() in self.negative_res:
+            print("Alright, have a tasty day!")
+            return
+        self.chat()
+
+    def make_exit(self, reply):
+        if reply.lower() in self.exit_commands:
+            print("Bon appétit! Have a great day!")
+            return True
+        return False
+
+    def chat(self):
+        reply = input(random.choice(self.random_questions) + "\n").lower()
+        while not self.make_exit(reply):
+            reply = input(self.match_reply(reply) + "\n").lower()
+
+    def match_reply(self, reply):
+        for intent, regex_pattern in self.food_talk.items():
+            if re.match(regex_pattern, reply):
+                return getattr(self, intent)()
+        return self.no_match_intent()
+
+    def favorite_dish_intent(self):
+        responses = (
+            "I love a good lasagna. What's yours?",
+            "Sushi is my favorite! What about you?",
+            "I can't resist a delicious pizza. How about you?"
+        )
+        return random.choice(responses)
+
+    def enjoy_cooking_intent(self):
+        responses = (
+            "Cooking is a wonderful way to express creativity!",
+            "I find cooking to be very relaxing. Do you?",
+            "Yes, cooking is a lot of fun! What's your favorite thing to cook?"
+        )
+        return random.choice(responses)
+
+    def best_meal_intent(self):
+        responses = (
+            "The best meal I've had was a homemade Thanksgiving dinner.",
+            "A five-course meal at a gourmet restaurant was unforgettable!",
+            "A simple, delicious pasta dish can sometimes be the best meal."
+        )
+        return random.choice(responses)
+
+    def dietary_restrictions_intent(self):
+        responses = (
+            "I'm always happy to learn about dietary restrictions to help others enjoy their meals.",
+            "There are so many great recipes for different dietary needs!",
+            "It's important to accommodate dietary restrictions for everyone's health and enjoyment."
+        )
+        return random.choice(responses)
+
+    def food_love_intent(self):
+        responses = (
+            "I can't live without chocolate!",
+            "Bread is something I truly can't live without.",
+            "A world without cheese would be a sad place for me."
+        )
+        return random.choice(responses)
+
+    def sweet_or_savory_intent(self):
+        responses = (
+            "I love both, but if I had to choose, I'd say sweet.",
+            "Savory dishes are my favorite! How about you?",
+            "It's hard to choose, but I think I prefer savory."
+        )
+        return random.choice(responses)
+
+    def new_recipe_intent(self):
+        responses = (
+            "Yes, I recently tried a new pasta recipe and it was amazing!",
+            "I love experimenting with new recipes. Have you tried anything new?",
+            "Trying new recipes keeps cooking exciting!"
+        )
+        return random.choice(responses)
+
+    def no_match_intent(self):
+        responses = (
+            "That's interesting! Tell me more.",
+            "I'd love to hear more about that.",
+            "Can you elaborate on that?"
+        )
+        return random.choice(responses)
+
+# Instantiate and start the chatbot
+bot = ChefBot()
+bot.greet()
