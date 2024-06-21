@@ -1,0 +1,54 @@
+import numpy as np
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Sample dataset of books with genres
+books = pd.DataFrame({
+    'title': ["The Hobbit", "Dune", "The Hound of the Baskervilles", "Harry Potter and the Sorcerer's Stone", "Gone Girl", "Neuromancer", "The Lord of the Rings"],
+    'Genre': ["Fantasy", "Science-Fiction", "Mystery", "Fantasy", "Mystery", "Science-Fiction", "Fantasy"],
+})
+
+# Convert genres to one-hot encoding
+genres_one_hot = pd.get_dummies(books['Genre'])
+
+# Sample user-book ratings matrix
+# Rows represent users, columns represent books
+ratings_matrix = np.array([
+    [5, 0, 0, 4, 0, 0, 3],
+    [0, 4, 5, 0, 3, 4, 0],
+    [4, 0, 0, 5, 0, 0, 4],
+    [0, 5, 4, 0, 5, 4, 0],
+    [0, 0, 5, 0, 4, 0, 0],
+])
+
+def get_user_profile(user_ratings, genres_one_hot):
+    """Create a user profile based on the user's ratings and book genres."""
+    user_profile = user_ratings.dot(genres_one_hot)
+    return user_profile
+
+def recommend_books(user_index, ratings_matrix, books, genres_one_hot, num_recommendations=3):
+    """Recommend books for a user based on content filtering."""
+    user_ratings = ratings_matrix[user_index]
+    user_profile = get_user_profile(user_ratings, genres_one_hot)
+
+    # Calculate the cosine similarity between the user profile and the book genres
+    genre_similarity = cosine_similarity([user_profile], genres_one_hot)[0]
+
+    # Get indices of books sorted by similarity score
+    book_similarity_indices = genre_similarity.argsort()[::-1]
+
+    # Recommend books that the user has not yet rated
+    recommendations = []
+    for index in book_similarity_indices:
+        if user_ratings[index] == 0:
+            recommendations.append(books['title'].iloc[index])
+        if len(recommendations) >= num_recommendations:
+            break
+
+    return recommendations
+
+# Sample test
+user_index = 0  # Example user index
+recommended_books = recommend_books(user_index, ratings_matrix, books, genres_one_hot, num_recommendations=3)
+
+print(f"Recommended books for user {user_index}: {recommended_books}")
